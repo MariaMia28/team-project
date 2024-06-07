@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1 align="center">Notes</h1>
+
+<ul class="list-group list-group-flush" id="notes">
+    {% for note in user.notes %}
+    <li class="list-group-item">
+        <div>{{ note.data|safe }}</div>
+        <button type="button" class="close" onClick="deleteNote({{ note.id }})">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </li>
+    {% endfor %}
+</ul>
+
+<form method="POST">
+    <textarea name="note" id="note" class="form-control"></textarea>
+    <br>
+    <div align="center">
+        <button type="submit" class="btn btn-primary">Add Note</button>
+    </div>
+</form>
+
+<!-- Include CKEditor from CDN -->
+<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('note');
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function deleteNote(noteId) {
+        $.ajax({
+            url: '/delete-note',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ noteId: noteId }),
+            success: function(response) {
+                location.reload();
+            }
+        });
+    }
+
+    $(document).on('change', '.complete-task', function() {
+        var noteId = $(this).data('id');
+        var isCompleted = $(this).is(':checked');
+        $.ajax({
+            url: '/complete-task',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ noteId: noteId, isCompleted: isCompleted }),
+            success: function(response) {
+                location.reload();
+            }
+        });
+    });
+</script>
+{% endblock %}
